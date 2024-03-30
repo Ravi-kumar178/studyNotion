@@ -4,7 +4,7 @@ const profileSchema = new mongoose.Schema({
     profession: {
         type: String,
         trim: true,
-        required: true
+        
     },
     gender:{
         type: String,
@@ -14,7 +14,7 @@ const profileSchema = new mongoose.Schema({
     dateOfBirth:{
         type: Date,
         trim: true,
-        required: true
+       
     },
     phoneNumber:{
         type: Number,
