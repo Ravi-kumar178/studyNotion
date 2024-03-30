@@ -1,7 +1,7 @@
 const Courses = require("../models/Course");
 const Tags = require("../models/Tags");
 const User = require("../models/User");
-const imageUploader = require("../utils/imageUploader");
+const {imageUploader} = require("../utils/imageUploader");
 
 
 require("dotenv").config()
@@ -20,7 +20,7 @@ exports.createCourse = async(req,res) => {
         }
         //validate the instructor
         const userId = req.user.id;
-        const instructorDetails = await User.find({userId});
+        const instructorDetails = await User.findById(userId);
         console.log("Instructor Details: ", instructorDetails);
         if(!instructorDetails){
             return res.status(404).json({
@@ -29,7 +29,7 @@ exports.createCourse = async(req,res) => {
             })
         }
         //validate the tag
-        const tagDetails = await Tags.find(tag);
+        const tagDetails = await Tags.findById(tag);
         console.log("Tag Details: ", tagDetails);
         if(!tagDetails){
             return res.status(404).json({
@@ -48,7 +48,7 @@ exports.createCourse = async(req,res) => {
                 price,
                 instructorName: instructorDetails._id,
                 tag: tagDetails._id,
-                thumbnail: thumbnailImage.secure_url
+                thumbnail: thumbnailImage.secure_url,
             }
         );
         //push the new course ID in the user
