@@ -39,7 +39,7 @@ exports.showAllCategory = async(req,res) => {
         return res.status(200).json({
             success: true,
             message: "Tag is fetched successfully",
-            allTags
+            data: allCategory
         })
     }
     catch(err){
@@ -50,3 +50,4 @@ exports.showAllCategory = async(req,res) => {
         })
     }
 }
+

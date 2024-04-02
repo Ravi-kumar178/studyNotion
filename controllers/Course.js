@@ -97,7 +97,33 @@ exports.showAllCourses = async(req,res) => {
     try{
         const allCourses = await Courses.find({},
             {courseName: true, courseDescription: true, price: true,thumbnail:true})
-            .populate("instructor")
+            .populate(
+                {
+                    path:"studentsEnrolled",
+                    populate:[
+                        {path:"additionalDetails"},
+                        {path:"courseProgress"}
+                    ]  
+                }
+            )
+            .populate(
+                {
+                    path:"instructorName",
+                    populate:{
+                        path:"additionalDetails"
+                    }
+                }
+            )
+            .populate(
+                {
+                    path:"courseContent",
+                    populate:{
+                        path:"SubSection"
+                    }
+                }
+            )
+            .populate("reviewAndRating")
+            .populate("category")
             .exec();
         
         return res.status(200).json({
@@ -110,6 +136,67 @@ exports.showAllCourses = async(req,res) => {
         return res.status(500).json({
             success: false,
             message:"Server error while fetching courses"
+        })
+    }
+}
+
+//get all course details
+exports.getCourseDetails = async(req,res)=>{
+    try{
+        //get courseId
+        const {courseId} = req.body;
+        //validate courseId
+        if(!courseId){
+            return res.status(404).json({
+                success: false,
+                message:"No course ID found,please enter course ID"
+            })
+        }
+        //find by courseId and populate
+        const courseDetails = await Courses.findById(courseId)
+                                     .populate(
+                                        {
+                                            path:"studentsEnrolled",
+                                            populate:[
+                                                {path:"additionalDetails"},
+                                                {path:"courseProgress"}
+                                            ]
+                                        }
+                                     )
+                                     .populate({
+                                        path:"instructorName",
+                                        populate:{
+                                            path:"additionalDetails"
+                                        }
+                                     }) 
+                                     .populate({
+                                        path:"courseContent",
+                                        populate:{
+                                            path:"SubSection"
+                                        }
+                                     })
+                                     .populate("reviewAndRating")
+                                     .populate("category")
+                                     .exec();
+        //validate if no course found
+        if(!courseDetails){
+            return res.status(404).json({
+                success: false,
+                message:"No Course found"
+            })
+        }
+        //return res
+        return res.status(200).json({
+            success: true,
+            message:"Course Detail fetched",
+            courseDetails
+        })
+    }
+    catch(err){
+        console.log(err);
+        return res.status(500).json({
+            success: false,
+            message:"Server error while fetching course details"
         })
     }
 }
