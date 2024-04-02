@@ -46,8 +46,65 @@ exports.showAllCategory = async(req,res) => {
         console.log(err);
         return res.status(500).json({
             success: false,
-            message:"Server error while fetching tag"
+            message:"Server error while fetching category"
         })
     }
 }
 
+//category page details
+exports.categoryPageDetails = async(req,res)=>{
+    try{
+        //fetch category id
+        const {categoryId} = req.body;
+        //find category details and populate course and reviewAndRating
+        const categoryDetails = await Category.find(categoryId)
+                                            .populate({
+                                                path:"course",
+                                                populate:{
+                                                    path:"reviewAndRating"
+                                                }
+                                            })
+                                            .exec();
+        //validate if the category detail is present or not
+        if(!categoryDetails){
+            return res.status.json({
+                success: false,
+                message:"No Course is present with this category"
+            });
+        }
+        //find the category detail whose id is not equal to category id
+        const differentCategoryDetails = await Category.find(
+                                                {_id:{$neq : categoryId}}
+                                                )
+                                                .populate({
+                                                    path:"course",
+                                                    populate:{
+                                                        path:"reviewAndRating"
+                                                    }
+                                                })
+                                                .exec();
+
+        //validate
+        if(!differentCategoryDetails){
+            return res.status.json({
+                success: false,
+                message:"No course is available without the categorized course right now"
+            });
+        }
+        //find best selling
+        //return res -> with all data
+
+        return res.status(200).json({
+            success: true,
+            data: categoryDetails,
+                  differentCategoryDetails
+        })
+    }
+    catch(err){
+        console.log(err);
+        return res.status(500).json({
+            success: false,
+            message:"Server error while fetching category details"
+        })
+    }
+}
